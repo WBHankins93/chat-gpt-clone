@@ -1,23 +1,51 @@
-import logo from './logo.svg';
+import React, { useState } from 'react';
 import './App.css';
 
 function App() {
+  const [message, setMessage] = useState('');
+  const [chatHistory, setChatHistory] = useState([]);
+
+  // Function to handle sending messages to the Flask backend
+  const sendMessage = async () => {
+    if (!message.trim()) return;
+
+    // Send a POST request to the Flask backend
+    const response = await fetch('http://localhost:5000/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ message }),
+    });
+    const data = await response.json();
+    
+    // Update chat history with the new message and AI response
+    setChatHistory([...chatHistory, { user: message, ai: data.response }]);
+    setMessage(''); // Clear input field
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="app-container">
+      <h1>Chat GPT Clone</h1>
+      <div className="chat-box">
+        {chatHistory.map((chat, index) => (
+          <div key={index}>
+            <strong>You:</strong> {chat.user}
+            <br />
+            <strong>AI:</strong> {chat.ai}
+          </div>
+        ))}
+      </div>
+      <input
+        type="text"
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        placeholder="Type a message..."
+        className="message-input"
+      />
+      <button onClick={sendMessage} className="send-button">
+        Send
+      </button>
     </div>
   );
 }
