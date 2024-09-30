@@ -20,6 +20,10 @@ db.init_app(app)
 # OpenAI API Key Configuration
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
+@app.route('/')
+def home():
+    return "Server is running!"
+
 # Route to Handle Chat Requests
 @app.route('/chat', methods=['POST'])
 def chat():
@@ -28,12 +32,15 @@ def chat():
     conversation_id = data.get('conversation_id') or str(uuid.uuid4())
     
     # Generate AI response using OpenAI API
-    response = openai.Completion.create(
-        model="text-davinci-003",  # Using this model to be cost friendly. To have a more accurate response, we can use gpt-3.5-turbo.
-        prompt=user_message,
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "user", "content": user_message}
+        ],
         max_tokens=100
     )
-    ai_response = response.choices[0].text.strip()
+    ai_response = response.choices[0].message['content'].strip()
+
 
     # Save chat to the database
     chat_entry = Chat(conversation_id=conversation_id, user_message=user_message, ai_response=ai_response)
