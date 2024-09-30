@@ -42,6 +42,21 @@ def chat():
 
     return jsonify({"response": ai_response, "conversation_id": conversation_id})
 
+
+@app.route('/chats/<conversation_id>', methods=['GET'])
+def get_chats(conversation_id):
+    # Query all chats with the specified conversation_id
+    chats = Chat.query.filter_by(conversation_id=conversation_id).all()
+    chat_history = [
+        {"user_message": chat.user_message, "ai_response": chat.ai_response, "timestamp": chat.timestamp}
+        for chat in chats
+    ]
+
+    return jsonify(chat_history)
+
 # Run the Flask app
 if __name__ == '__main__':
+    # Create all database tables if they don't exist
+    with app.app_context():
+        db.create_all()  # This will create chats.db and the required table schema
     app.run(debug=True)
