@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
 import openai
+import os
 
 load_dotenv()  # Load environment variables from .env file
 
@@ -10,7 +11,7 @@ app = Flask(__name__)
 CORS(app)
 
 # OpenAI API Key Configuration
-openai.api_key = "OPENAI_API_KEY"
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # Route to Handle Chat Requests
 @app.route('/chat', methods=['POST'])
@@ -20,7 +21,7 @@ def chat():
     
     # Generate AI response using OpenAI API (this can be mocked for testing)
     response = openai.Completion.create(
-        model="text-davinci-003",  # Use appropriate GPT model
+        model="text-davinci-003",  # Using this model to be cost friendly. To have a more accurate response, we can use gpt-3.5-turbo.
         prompt=user_message,
         max_tokens=100
     )
