@@ -8,21 +8,32 @@ function App() {
   // Function to handle sending messages to the Flask backend
   const sendMessage = async () => {
     if (!message.trim()) return;
-
-    // Send a POST request to the Flask backend
-    const response = await fetch('http://localhost:5000/chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ message }),
-    });
-    const data = await response.json();
-    
-    // Update chat history with the new message and AI response
-    setChatHistory([...chatHistory, { user: message, ai: data.response }]);
-    setMessage(''); // Clear input field
+  
+    try {
+      // Send a POST request to the Flask backend
+      const response = await fetch('http://localhost:5000/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message }),
+      });
+  
+      // Check for non-OK response
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+  
+      const data = await response.json();
+      
+      // Update chat history with the new message and AI response
+      setChatHistory([...chatHistory, { user: message, ai: data.response }]);
+      setMessage(''); // Clear input field
+    } catch (error) {
+      console.error("Failed to send message:", error);
+    }
   };
+  
 
   return (
     <div className="app-container">

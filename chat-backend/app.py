@@ -10,7 +10,7 @@ from models import db, Chat  # Import db and Chat model
 load_dotenv()  # Load environment variables from .env file
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/chat": {"origins": "http://localhost:3000"}})
 
 # Database Configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///chats.db'
@@ -25,7 +25,7 @@ def home():
     return "Server is running!"
 
 # Route to Handle Chat Requests
-@app.route('/chat', methods=['POST'])
+@app.route('/chat', methods=['POST', 'OPTIONS'])
 def chat():
     data = request.json
     user_message = data.get('message')
